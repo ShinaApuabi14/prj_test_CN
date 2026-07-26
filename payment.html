@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment — Marigold & Co.</title>
+<title>Shop All — Marigold & Co.</title>
 <style>
 /* ==========================================================================
    MARIGOLD & CO. — Kids' clothing shop
@@ -1107,6 +1107,7 @@ section.band { padding: 76px 0; }
 </head>
 <body>
 
+  <!-- Utility bar -->
   <div class="utility-bar">
     <div class="wrap">
       <div class="links">
@@ -1122,6 +1123,7 @@ section.band { padding: 76px 0; }
     </div>
   </div>
 
+  <!-- Header -->
   <header class="site-header">
     <div class="wrap">
       <button class="burger icon-btn" aria-label="Open menu">
@@ -1133,7 +1135,7 @@ section.band { padding: 76px 0; }
       </a>
       <nav class="main-nav">
         <a href="index.html">Home</a>
-        <a href="shop.html">Shop</a>
+        <a href="shop.html" class="active">Shop</a>
         <a href="shop.html?category=Girls">Girls</a>
         <a href="shop.html?category=Boys">Boys</a>
         <a href="shop.html?category=Baby">Baby</a>
@@ -1146,12 +1148,13 @@ section.band { padding: 76px 0; }
         </button>
         <a href="checkout.html" class="icon-btn" aria-label="Cart">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6L4 3H2"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
-          <span class="cart-count">3</span>
+          <span class="cart-count">1</span>
         </a>
       </div>
     </div>
   </header>
 
+  <!-- Mobile nav drawer -->
   <div class="mobile-nav">
     <div class="backdrop"></div>
     <div class="panel">
@@ -1167,97 +1170,91 @@ section.band { padding: 76px 0; }
   </div>
 
   <div class="wrap breadcrumb">
-    <a href="index.html">Home</a><span class="sep">/</span><a href="checkout.html">Checkout</a><span class="sep">/</span><span>Payment</span>
+    <a href="index.html">Home</a><span class="sep">/</span><span>Shop All</span>
   </div>
 
-  <div class="wrap page-head">
-    <span class="eyebrow bloom">Last Step</span>
-    <h1>Payment</h1>
-    <div class="step-track">
-      <div class="step done"><span class="num">✓</span> Cart</div>
-      <div class="divider"></div>
-      <div class="step done"><span class="num">✓</span> Shipping</div>
-      <div class="divider"></div>
-      <div class="step active"><span class="num">3</span> Payment</div>
-    </div>
-  </div>
+  <div class="wrap shop-layout">
 
-  <div class="wrap checkout-layout">
-    <div>
-      <div class="success-banner" id="success-banner">
-        <div class="icon">✓</div>
-        <div>
-          <strong>Order placed!</strong>
-          <div style="font-size:13px; color:var(--ink-soft);">Confirmation sent to your email. Order #MC-10593.</div>
+    <!-- Filters sidebar -->
+    <div class="filters-backdrop"></div>
+    <aside class="filters" id="filters">
+      <div class="filter-group">
+        <p class="filter-title">Category</p>
+        <div id="category-filters"></div>
+      </div>
+
+      <div class="filter-group">
+        <p class="filter-title">Age Group</p>
+        <div class="age-pill-row" id="age-filters"></div>
+      </div>
+
+      <div class="filter-group">
+        <p class="filter-title">Price</p>
+        <div class="price-inputs">
+          <input type="number" id="price-min" placeholder="Min" min="0">
+          <span>–</span>
+          <input type="number" id="price-max" placeholder="Max" min="0">
         </div>
       </div>
 
-      <div class="checkout-card">
-        <h3><span class="bloom"></span>Payment Method</h3>
-        <div class="pay-methods">
-          <label class="pay-method checked">
-            <input type="radio" name="paymethod" value="card" checked>
-            <span class="glyph">💳</span> Card
-          </label>
-          <label class="pay-method">
-            <input type="radio" name="paymethod" value="paypal">
-            <span class="glyph">🅿️</span> PayPal
-          </label>
-          <label class="pay-method">
-            <input type="radio" name="paymethod" value="transfer">
-            <span class="glyph">🏦</span> Bank Transfer
-          </label>
-        </div>
-
-        <div id="card-preview" class="card-preview">
-          <div class="chip"></div>
-          <div class="num" id="preview-number">•••• •••• •••• ••••</div>
-          <div class="row">
-            <span id="preview-name">FULL NAME</span>
-            <span id="preview-expiry">MM/YY</span>
-          </div>
-        </div>
-
-        <form id="card-form" onsubmit="return false;">
-          <div class="form-field">
-            <label for="pay-name">Name on card</label>
-            <input type="text" id="pay-name" placeholder="Amara Okafor">
-          </div>
-          <div class="form-field">
-            <label for="pay-number">Card number</label>
-            <input type="text" id="pay-number" placeholder="4242 4242 4242 4242" maxlength="19">
-          </div>
-          <div class="form-row">
-            <div class="form-field">
-              <label for="pay-expiry">Expiry date</label>
-              <input type="text" id="pay-expiry" placeholder="MM/YY" maxlength="5">
-            </div>
-            <div class="form-field">
-              <label for="pay-cvc">CVC</label>
-              <input type="text" id="pay-cvc" placeholder="123" maxlength="4">
-            </div>
-          </div>
-        </form>
-
-        <div id="paypal-note" style="display:none; color:var(--ink-soft); font-size:13.5px;">
-          You'll be redirected to PayPal to complete your payment securely after placing your order.
-        </div>
-        <div id="transfer-note" style="display:none; color:var(--ink-soft); font-size:13.5px;">
-          Bank transfer details and a reference number will be emailed to you after placing your order.
-        </div>
+      <div class="filter-group">
+        <p class="filter-title">Size</p>
+        <div id="size-filters" class="filter-option" style="display:block; padding:0;"></div>
       </div>
 
-      <button class="btn btn-solid btn-block" id="place-order-btn">Place Order — Pay Now</button>
-    </div>
+      <div class="filter-group">
+        <p class="filter-title">Color</p>
+        <div class="color-row" id="color-filters"></div>
+      </div>
 
-    <aside class="order-summary">
-      <h3>Order Summary</h3>
-      <div id="summary-items"></div>
-      <div class="summary-totals" id="summary-totals"></div>
+      <button class="clear-filters" id="clear-filters">Clear all filters</button>
     </aside>
+
+    <!-- Main catalog -->
+    <div>
+      <div class="shop-toolbar">
+        <button class="btn btn-sm filters-mobile-toggle" id="open-filters">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+          Filters
+        </button>
+        <p class="result-count" id="result-count"></p>
+        <div class="toolbar-right">
+          <label style="font-size:13px; color:var(--ink-soft);">
+            Sort
+            <select id="sort-select" style="border:1px solid var(--line); border-radius:8px; padding:9px 12px; margin-left:6px; font-family:inherit;">
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name: A–Z</option>
+              <option value="rating-desc">Top Rated</option>
+            </select>
+          </label>
+          <label style="font-size:13px; color:var(--ink-soft);">
+            Show
+            <select id="per-page-select" style="border:1px solid var(--line); border-radius:8px; padding:9px 12px; margin-left:6px; font-family:inherit;">
+              <option value="12">12</option>
+              <option value="24">24</option>
+              <option value="48">48</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="active-chips" id="active-chips"></div>
+
+      <div class="catalog-grid" id="catalog-grid"></div>
+
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <span class="bloom">No products match these filters</span>
+        <p>Try clearing a filter or widening your price range.</p>
+      </div>
+
+      <nav class="pagination" id="pagination" aria-label="Product pages"></nav>
+    </div>
   </div>
 
-  <footer class="site-footer" id="contact">
+  <!-- Footer -->
+  <footer class="site-footer">
     <div class="wrap footer-top">
       <div class="footer-about">
         <a href="index.html" class="logo"><span class="logo-mark">M</span>Marigold&nbsp;&amp;&nbsp;Co.</a>
@@ -1444,96 +1441,290 @@ section.band { padding: 76px 0; }
 
 </script>
   <script>
-    (function () {
-      // ---- order summary (same demo cart as checkout.html) ----
-      const ALL = window.MARIGOLD_PRODUCTS;
-      const cart = [
-        { product: ALL[4], qty: 1 },
-        { product: ALL[42], qty: 2 },
-        { product: ALL[103], qty: 1 },
-      ];
-      const itemsEl = document.getElementById("summary-items");
-      const totalsEl = document.getElementById("summary-totals");
+/* ==========================================================================
+   Marigold & Co. — shop catalog: filters, sort, pagination
+   ========================================================================== */
+(function () {
+  "use strict";
 
-      itemsEl.innerHTML = cart.map(({ product: p, qty }) => {
-        const unit = p.salePrice ?? p.price;
-        return `
-          <div class="summary-line-item">
-            <img src="${window.marigoldProductImage(p)}" alt="${p.name}"
-                 onerror="this.onerror=null;this.src='${window.marigoldProductImageFallback(p)}';">
-            <div class="info">
-              <div class="name">${p.name}</div>
-              <div class="meta">${p.ageGroupLabel} · Qty ${qty}</div>
-            </div>
-            <div class="price">$${(unit * qty).toFixed(2)}</div>
-          </div>`;
-      }).join("");
+  const ALL = window.MARIGOLD_PRODUCTS;
+  const CATEGORIES = window.MARIGOLD_CATEGORIES;
+  const AGE_GROUPS = window.MARIGOLD_AGE_GROUPS;
+  const SIZES = window.MARIGOLD_SIZES;
+  const COLORS = window.MARIGOLD_COLORS;
 
-      const subtotal = cart.reduce((sum, { product: p, qty }) => sum + (p.salePrice ?? p.price) * qty, 0);
-      const tax = subtotal * 0.075;
-      const total = subtotal + tax;
+  const state = {
+    categories: new Set(),
+    ages: new Set(),
+    sizes: new Set(),
+    colors: new Set(),
+    priceMin: null,
+    priceMax: null,
+    sort: "featured",
+    perPage: 12,
+    page: 1,
+  };
 
-      totalsEl.innerHTML = `
-        <div class="row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-        <div class="row"><span>Shipping</span><span>Free</span></div>
-        <div class="row"><span>Estimated tax</span><span>$${tax.toFixed(2)}</span></div>
-        <div class="row grand"><span>Total</span><span>$${total.toFixed(2)}</span></div>
-      `;
+  // ---- read initial category from ?category= query param ----
+  const params = new URLSearchParams(window.location.search);
+  const initialCategory = params.get("category");
+  if (initialCategory && CATEGORIES.includes(initialCategory)) {
+    state.categories.add(initialCategory);
+  }
 
-      // ---- payment method switching ----
-      const cardPreview = document.getElementById("card-preview");
-      const cardForm = document.getElementById("card-form");
-      const paypalNote = document.getElementById("paypal-note");
-      const transferNote = document.getElementById("transfer-note");
+  const els = {
+    categoryFilters: document.getElementById("category-filters"),
+    ageFilters: document.getElementById("age-filters"),
+    sizeFilters: document.getElementById("size-filters"),
+    colorFilters: document.getElementById("color-filters"),
+    priceMin: document.getElementById("price-min"),
+    priceMax: document.getElementById("price-max"),
+    sortSelect: document.getElementById("sort-select"),
+    perPageSelect: document.getElementById("per-page-select"),
+    resultCount: document.getElementById("result-count"),
+    activeChips: document.getElementById("active-chips"),
+    catalogGrid: document.getElementById("catalog-grid"),
+    emptyState: document.getElementById("empty-state"),
+    pagination: document.getElementById("pagination"),
+    clearFilters: document.getElementById("clear-filters"),
+    filtersPanel: document.getElementById("filters"),
+    filtersBackdrop: document.querySelector(".filters-backdrop"),
+    openFilters: document.getElementById("open-filters"),
+  };
 
-      document.querySelectorAll('input[name="paymethod"]').forEach((input) => {
-        input.addEventListener("change", () => {
-          document.querySelectorAll(".pay-method").forEach((el) => el.classList.remove("checked"));
-          input.closest(".pay-method").classList.add("checked");
+  // ---------------- build filter controls ----------------
+  function categoryCount(cat) {
+    return ALL.filter((p) => p.category === cat).length;
+  }
 
-          cardPreview.style.display = input.value === "card" ? "flex" : "none";
-          cardForm.style.display = input.value === "card" ? "block" : "none";
-          paypalNote.style.display = input.value === "paypal" ? "block" : "none";
-          transferNote.style.display = input.value === "transfer" ? "block" : "none";
-        });
+  els.categoryFilters.innerHTML = CATEGORIES.map((cat) => `
+    <label class="filter-option">
+      <input type="checkbox" value="${cat}" data-filter="category" ${state.categories.has(cat) ? "checked" : ""}>
+      ${cat}
+      <span class="count">${categoryCount(cat)}</span>
+    </label>`).join("");
+
+  els.ageFilters.innerHTML = AGE_GROUPS.map((ag) => `
+    <label class="age-pill ${state.ages.has(ag.id) ? "checked" : ""}">
+      <input type="checkbox" value="${ag.id}" data-filter="age">
+      ${ag.label}
+    </label>`).join("");
+
+  els.sizeFilters.innerHTML = SIZES.map((sz) => `
+    <label class="filter-option" style="display:inline-flex; margin-right:14px;">
+      <input type="checkbox" value="${sz}" data-filter="size">
+      ${sz}
+    </label>`).join("");
+
+  els.colorFilters.innerHTML = COLORS.map((c) => `
+    <label class="color-swatch-wrap" title="${c.name}">
+      <input type="checkbox" value="${c.name}" data-filter="color">
+      <span class="color-swatch" style="background:#${c.hex};"></span>
+    </label>`).join("");
+
+  // ---------------- event wiring ----------------
+  document.addEventListener("change", (e) => {
+    const t = e.target;
+    if (!t.dataset || !t.dataset.filter) return;
+    const setFor = { category: state.categories, age: state.ages, size: state.sizes, color: state.colors }[t.dataset.filter];
+    if (t.checked) setFor.add(t.value); else setFor.delete(t.value);
+    if (t.dataset.filter === "age") t.closest(".age-pill").classList.toggle("checked", t.checked);
+    if (t.dataset.filter === "color") t.nextElementSibling.classList.toggle("checked", t.checked);
+    state.page = 1;
+    render();
+  });
+
+  els.priceMin.addEventListener("input", () => { state.priceMin = els.priceMin.value ? Number(els.priceMin.value) : null; state.page = 1; render(); });
+  els.priceMax.addEventListener("input", () => { state.priceMax = els.priceMax.value ? Number(els.priceMax.value) : null; state.page = 1; render(); });
+  els.sortSelect.addEventListener("change", () => { state.sort = els.sortSelect.value; render(); });
+  els.perPageSelect.addEventListener("change", () => { state.perPage = Number(els.perPageSelect.value); state.page = 1; render(); });
+
+  els.clearFilters.addEventListener("click", () => {
+    state.categories.clear(); state.ages.clear(); state.sizes.clear(); state.colors.clear();
+    state.priceMin = null; state.priceMax = null; state.page = 1;
+    els.priceMin.value = ""; els.priceMax.value = "";
+    document.querySelectorAll('[data-filter]').forEach((i) => (i.checked = false));
+    document.querySelectorAll(".age-pill, .color-swatch").forEach((el) => el.classList.remove("checked"));
+    render();
+  });
+
+  if (els.openFilters) {
+    els.openFilters.addEventListener("click", () => {
+      els.filtersPanel.classList.add("open");
+      els.filtersBackdrop.classList.add("open");
+    });
+    els.filtersBackdrop.addEventListener("click", () => {
+      els.filtersPanel.classList.remove("open");
+      els.filtersBackdrop.classList.remove("open");
+    });
+  }
+
+  // ---------------- filtering / sorting ----------------
+  function getFiltered() {
+    return ALL.filter((p) => {
+      if (state.categories.size && !state.categories.has(p.category)) return false;
+      if (state.ages.size && !state.ages.has(p.ageGroup)) return false;
+      if (state.sizes.size && !p.sizes.some((s) => state.sizes.has(s))) return false;
+      if (state.colors.size && !state.colors.has(p.color)) return false;
+      const effectivePrice = p.salePrice ?? p.price;
+      if (state.priceMin !== null && effectivePrice < state.priceMin) return false;
+      if (state.priceMax !== null && effectivePrice > state.priceMax) return false;
+      return true;
+    });
+  }
+
+  function getSorted(list) {
+    const arr = list.slice();
+    switch (state.sort) {
+      case "price-asc": arr.sort((a, b) => (a.salePrice ?? a.price) - (b.salePrice ?? b.price)); break;
+      case "price-desc": arr.sort((a, b) => (b.salePrice ?? b.price) - (a.salePrice ?? a.price)); break;
+      case "name-asc": arr.sort((a, b) => a.name.localeCompare(b.name)); break;
+      case "rating-desc": arr.sort((a, b) => b.rating - a.rating); break;
+      default: /* featured: new items first */ arr.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+    }
+    return arr;
+  }
+
+  // ---------------- rendering ----------------
+  function cardHTML(p) {
+    const price = p.salePrice
+      ? `<span class="was">$${p.price.toFixed(2)}</span>$${p.salePrice.toFixed(2)}`
+      : `$${p.price.toFixed(2)}`;
+    const tag = p.salePrice
+      ? `<span class="product-tag sale">Sale</span>`
+      : p.isNew ? `<span class="product-tag new">New</span>` : "";
+    return `
+      <article class="product-card">
+        <a href="#" class="product-media">
+          ${tag}
+          <img src="${window.marigoldProductImage(p)}" alt="${p.name}" loading="lazy"
+               onerror="this.onerror=null;this.src='${window.marigoldProductImageFallback(p)}';">
+        </a>
+        <button class="wishlist-btn" data-wishlist-toggle="${p.id}" aria-label="Save to wishlist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.5 4c2-.3 3.7.7 4.5 2.2C10.8 4.7 12.5 3.7 14.5 4c3.5.5 5.1 4 3.5 7.7C15.5 16.4 12 21 12 21z"/></svg>
+        </button>
+        <div class="product-body">
+          <p class="product-cat">${p.category} · ${p.ageGroupLabel}</p>
+          <h3 class="product-name">${p.name}</h3>
+          <p class="product-price">${price}</p>
+          <button class="btn btn-sm btn-block" style="margin-top:10px;" data-add-to-cart="${p.id}">Add to cart</button>
+        </div>
+      </article>`;
+  }
+
+  function renderChips() {
+    const chips = [];
+    state.categories.forEach((v) => chips.push({ label: v, group: "categories", value: v }));
+    state.ages.forEach((v) => chips.push({ label: AGE_GROUPS.find((a) => a.id === v).label, group: "ages", value: v }));
+    state.sizes.forEach((v) => chips.push({ label: `Size ${v}`, group: "sizes", value: v }));
+    state.colors.forEach((v) => chips.push({ label: v, group: "colors", value: v }));
+    if (state.priceMin !== null || state.priceMax !== null) {
+      chips.push({ label: `$${state.priceMin ?? 0} – $${state.priceMax ?? "∞"}`, group: "price", value: "price" });
+    }
+    els.activeChips.innerHTML = chips.map((c) => `
+      <span class="chip" data-group="${c.group}" data-value="${c.value}">
+        ${c.label} <button aria-label="Remove filter">✕</button>
+      </span>`).join("");
+
+    els.activeChips.querySelectorAll(".chip button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const chip = btn.closest(".chip");
+        const group = chip.dataset.group;
+        const value = chip.dataset.value;
+        if (group === "price") { state.priceMin = null; state.priceMax = null; els.priceMin.value = ""; els.priceMax.value = ""; }
+        else state[group].delete(value);
+        document.querySelectorAll(`[data-filter] `).forEach(() => {}); // no-op guard
+        syncControlsFromState();
+        state.page = 1;
+        render();
       });
+    });
+  }
 
-      // ---- live card preview ----
-      const nameInput = document.getElementById("pay-name");
-      const numberInput = document.getElementById("pay-number");
-      const expiryInput = document.getElementById("pay-expiry");
-      const previewName = document.getElementById("preview-name");
-      const previewNumber = document.getElementById("preview-number");
-      const previewExpiry = document.getElementById("preview-expiry");
+  function syncControlsFromState() {
+    document.querySelectorAll('[data-filter="category"]').forEach((i) => (i.checked = state.categories.has(i.value)));
+    document.querySelectorAll('[data-filter="age"]').forEach((i) => {
+      i.checked = state.ages.has(i.value);
+      i.closest(".age-pill").classList.toggle("checked", i.checked);
+    });
+    document.querySelectorAll('[data-filter="size"]').forEach((i) => (i.checked = state.sizes.has(i.value)));
+    document.querySelectorAll('[data-filter="color"]').forEach((i) => {
+      i.checked = state.colors.has(i.value);
+      i.nextElementSibling.classList.toggle("checked", i.checked);
+    });
+  }
 
-      nameInput.addEventListener("input", () => {
-        previewName.textContent = nameInput.value.trim().toUpperCase() || "FULL NAME";
-      });
-      numberInput.addEventListener("input", () => {
-        let digits = numberInput.value.replace(/\D/g, "").slice(0, 16);
-        numberInput.value = digits.replace(/(.{4})/g, "$1 ").trim();
-        previewNumber.textContent = numberInput.value || "•••• •••• •••• ••••";
-      });
-      expiryInput.addEventListener("input", () => {
-        let digits = expiryInput.value.replace(/\D/g, "").slice(0, 4);
-        if (digits.length > 2) digits = digits.slice(0, 2) + "/" + digits.slice(2);
-        expiryInput.value = digits;
-        previewExpiry.textContent = digits || "MM/YY";
-      });
+  function renderPagination(totalPages) {
+    if (totalPages <= 1) { els.pagination.innerHTML = ""; return; }
+    const p = state.page;
+    const pages = [];
+    const pushRange = (a, b) => { for (let i = a; i <= b; i++) pages.push(i); };
 
-      // ---- place order (demo only — no real payment processing) ----
-      document.getElementById("place-order-btn").addEventListener("click", (e) => {
-        const btn = e.currentTarget;
-        btn.textContent = "Processing…";
-        btn.disabled = true;
-        setTimeout(() => {
-          document.getElementById("success-banner").classList.add("show");
-          btn.textContent = "Order Placed ✓";
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }, 900);
+    if (totalPages <= 7) {
+      pushRange(1, totalPages);
+    } else if (p <= 4) {
+      pushRange(1, 5); pages.push("…"); pages.push(totalPages);
+    } else if (p >= totalPages - 3) {
+      pages.push(1); pages.push("…"); pushRange(totalPages - 4, totalPages);
+    } else {
+      pages.push(1); pages.push("…"); pushRange(p - 1, p + 1); pages.push("…"); pages.push(totalPages);
+    }
+
+    let html = `<button class="page-btn" data-page="${p - 1}" ${p === 1 ? "disabled" : ""} aria-label="Previous page">‹</button>`;
+    pages.forEach((pg) => {
+      if (pg === "…") html += `<span class="page-ellipsis">…</span>`;
+      else html += `<button class="page-btn ${pg === p ? "current" : ""}" data-page="${pg}">${pg}</button>`;
+    });
+    html += `<button class="page-btn" data-page="${p + 1}" ${p === totalPages ? "disabled" : ""} aria-label="Next page">›</button>`;
+    html += `
+      <label class="page-jump">
+        of ${totalPages} —
+        <input type="number" min="1" max="${totalPages}" value="${p}" id="page-jump-input" aria-label="Jump to page">
+        <button class="btn btn-sm" id="page-jump-go">Go</button>
+      </label>`;
+    els.pagination.innerHTML = html;
+
+    els.pagination.querySelectorAll(".page-btn[data-page]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = Number(btn.dataset.page);
+        if (target >= 1 && target <= totalPages) { state.page = target; render(); scrollToTop(); }
       });
-    })();
-  </script>
+    });
+    const jumpBtn = document.getElementById("page-jump-go");
+    if (jumpBtn) {
+      jumpBtn.addEventListener("click", () => {
+        let target = Number(document.getElementById("page-jump-input").value);
+        target = Math.min(Math.max(target, 1), totalPages);
+        state.page = target; render(); scrollToTop();
+      });
+    }
+  }
+
+  function scrollToTop() {
+    document.querySelector(".shop-toolbar").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function render() {
+    const filtered = getFiltered();
+    const sorted = getSorted(filtered);
+    const totalPages = Math.max(1, Math.ceil(sorted.length / state.perPage));
+    state.page = Math.min(state.page, totalPages);
+    const start = (state.page - 1) * state.perPage;
+    const pageItems = sorted.slice(start, start + state.perPage);
+
+    els.resultCount.innerHTML = `<strong>${sorted.length}</strong> products found &nbsp;·&nbsp; Page <strong>${state.page}</strong> of <strong>${totalPages}</strong>`;
+    els.catalogGrid.innerHTML = pageItems.map(cardHTML).join("");
+    els.emptyState.style.display = sorted.length === 0 ? "block" : "none";
+    els.catalogGrid.style.display = sorted.length === 0 ? "none" : "grid";
+
+    renderChips();
+    renderPagination(totalPages);
+  }
+
+  render();
+})();
+
+</script>
   <script>
 /* ==========================================================================
    Marigold & Co. — shared behaviors, cart + wishlist (localStorage-backed)
