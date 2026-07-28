@@ -345,6 +345,7 @@ section.band { padding: 76px 0; }
 }
 
 .product-card {
+  position: relative;
   background: var(--white);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -378,9 +379,38 @@ section.band { padding: 76px 0; }
 }
 .product-tag.new { background: var(--sage); }
 .product-tag.sale { background: var(--blush); color: var(--ink); }
+
+.wishlist-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.92);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-soft);
+  box-shadow: var(--shadow-card);
+  z-index: 2;
+}
+.wishlist-btn svg { width: 17px; height: 17px; }
+.wishlist-btn:hover { color: var(--blush); }
+.wishlist-btn.active { color: var(--blush); }
+.wishlist-btn.active svg { fill: var(--blush); }
+
 .product-body {
   padding: 16px 16px 18px;
   text-align: center;
+  position: relative;
+}
+.product-desc {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .product-cat {
   font-family: var(--font-mono);
@@ -1315,182 +1345,157 @@ section.band { padding: 76px 0; }
 
   <script>
 /* ============================================================
-   Marigold & Co. — product catalog generator
-   Deterministic "random" (seeded) so the catalog is stable
-   across reloads without needing a backend.
+   Marigold & Co. — product data loader (Google Sheet-backed)
+   ------------------------------------------------------------
+   Fetches your product catalog from a Google Apps Script Web App
+   that reads the "Products" tab of your Google Sheet. Every page
+   awaits window.MARIGOLD_READY before rendering, so this works
+   even though the fetch is asynchronous.
+
+   >>> PASTE YOUR DEPLOYED WEB APP URL BELOW <<<
+   (Apps Script → Deploy → Web app → copy the URL ending in /exec)
    ============================================================ */
 
 (function () {
   "use strict";
 
-  // ---- seeded PRNG (mulberry32) so results are stable ----
-  function mulberry32(seed) {
-    return function () {
-      seed |= 0;
-      seed = (seed + 0x6d2b79f5) | 0;
-      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  // ---- CONFIGURE THIS ----
+  const SHEET_API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+  // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
+
+  // ---- small built-in sample so the site still renders something
+  //      useful before you've connected a sheet ----
+  const FALLBACK_PRODUCTS = [
+    { id: 1, name: "Sunlit Floral Dress", description: "A breezy cotton dress with a soft floral print, perfect for warm afternoons.", category: "Girls", ageGroup: "3-5", ageGroupLabel: "3–5 Years", color: "Blush", colorHex: "e7a9a0", price: 32.99, salePrice: null, isNew: true, rating: 4.7, reviews: 58, sizes: "XS,S,M", sku: "MC-00001", imageSrc: "images/girls-1.jpg" },
+    { id: 2, name: "Meadow Chino Shorts", description: "Durable everyday shorts built for climbing, running, and everything in between.", category: "Boys", ageGroup: "6-8", ageGroupLabel: "6–8 Years", color: "Sage", colorHex: "93a67f", price: 24.99, salePrice: 19.99, isNew: false, rating: 4.5, reviews: 34, sizes: "S,M,L", sku: "MC-00002", imageSrc: "images/boys-1.jpg" },
+    { id: 3, name: "Petit Footed Sleeper", description: "Gentle on delicate skin, with soft fabric and easy snap closures for quick changes.", category: "Baby", ageGroup: "0-2", ageGroupLabel: "0–2 Years", color: "Cream", colorHex: "f6efe2", price: 22.99, salePrice: null, isNew: true, rating: 4.9, reviews: 112, sizes: "XS,S", sku: "MC-00003", imageSrc: "images/baby-1.jpg" },
+    { id: 4, name: "Golden Hour Canvas Sneaker", description: "A comfortable pair with room to grow and grip that keeps up with little feet.", category: "Shoes", ageGroup: "6-8", ageGroupLabel: "6–8 Years", color: "Marigold", colorHex: "d9a441", price: 34.99, salePrice: null, isNew: false, rating: 4.6, reviews: 89, sizes: "S,M,L,XL", sku: "MC-00004", imageSrc: "images/shoes-1.jpg" },
+    { id: 5, name: "Orchard Wool Beanie", description: "The finishing touch — small details, well made, keeps little ears warm.", category: "Accessories", ageGroup: "3-5", ageGroupLabel: "3–5 Years", color: "Butter", colorHex: "f2d98a", price: 16.99, salePrice: 12.99, isNew: true, rating: 4.4, reviews: 21, sizes: "S,M", sku: "MC-00005", imageSrc: "images/accessories-1.jpg" },
+    { id: 6, name: "Dandelion Tulle Skirt", description: "Twirl-ready tulle over a soft cotton lining — party-perfect and playground-tough.", category: "Girls", ageGroup: "6-8", ageGroupLabel: "6–8 Years", color: "Blush", colorHex: "e7a9a0", price: 28.99, salePrice: null, isNew: false, rating: 4.8, reviews: 64, sizes: "S,M,L", sku: "MC-00006", imageSrc: "images/girls-2.jpg" },
+  ];
+
+  // ---- turn a raw sheet row (or fallback object) into a clean product ----
+  function normalizeProduct(raw) {
+    const sizes = String(raw.sizes || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const isNewRaw = raw.isNew;
+    const isNew =
+      isNewRaw === true ||
+      String(isNewRaw).trim().toUpperCase() === "TRUE";
+
+    const salePriceRaw = raw.salePrice;
+    const salePrice =
+      salePriceRaw === "" || salePriceRaw == null || isNaN(Number(salePriceRaw))
+        ? null
+        : Number(salePriceRaw);
+
+    return {
+      id: Number(raw.id),
+      name: String(raw.name || "").trim(),
+      description: String(raw.description || "").trim(),
+      category: String(raw.category || "").trim(),
+      ageGroup: String(raw.ageGroup || "").trim(),
+      ageGroupLabel: String(raw.ageGroupLabel || raw.ageGroup || "").trim(),
+      color: String(raw.color || "").trim(),
+      colorHex: String(raw.colorHex || "d9a441").trim().replace(/^#/, ""),
+      price: Number(raw.price) || 0,
+      salePrice,
+      isNew,
+      rating: Number(raw.rating) || 0,
+      reviews: Number(raw.reviews) || 0,
+      sizes: sizes.length ? sizes : ["S", "M", "L"],
+      sku: String(raw.sku || "").trim(),
+      imageSrc: String(raw.imageSrc || "").trim(),
     };
   }
-  const rand = mulberry32(19820417);
-  const pick = (arr) => arr[Math.floor(rand() * arr.length)];
-  const pickInt = (min, max) => Math.floor(rand() * (max - min + 1)) + min;
 
-  const CATEGORIES = ["Girls", "Boys", "Baby", "Shoes", "Accessories"];
+  // ---- derive filter option lists straight from the live product data,
+  //      so new categories/ages/sizes/colors you add in the sheet show
+  //      up in the shop filters automatically ----
+  function deriveFilters(products) {
+    const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
 
-  const AGE_GROUPS = [
-    { id: "0-2", label: "0–2 Years" },
-    { id: "3-5", label: "3–5 Years" },
-    { id: "6-8", label: "6–8 Years" },
-    { id: "9-12", label: "9–12 Years" },
-  ];
-
-  const SIZES = ["XS", "S", "M", "L", "XL"];
-
-  const COLORS = [
-    { name: "Marigold", hex: "d9a441" },
-    { name: "Cream", hex: "f6efe2" },
-    { name: "Blush", hex: "e7a9a0" },
-    { name: "Sage", hex: "93a67f" },
-    { name: "Denim", hex: "5b7b8a" },
-    { name: "Charcoal", hex: "3a3a38" },
-    { name: "Butter", hex: "f2d98a" },
-    { name: "Coral", hex: "e8836b" },
-  ];
-
-  const TYPES_BY_CATEGORY = {
-    Girls: ["Floral Dress", "Tulle Skirt", "Ruffle Blouse", "Knit Cardigan", "Pinafore", "Denim Overalls", "Cotton Tee", "Pleated Skirt", "Puffer Jacket", "Lace-Trim Romper"],
-    Boys: ["Striped Tee", "Chino Shorts", "Corduroy Jacket", "Flannel Shirt", "Jogger Pants", "Zip Hoodie", "Denim Jacket", "Graphic Tee", "Cargo Pants", "Knit Sweater"],
-    Baby: ["Onesie", "Footed Sleeper", "Knit Bonnet Set", "Muslin Swaddle", "Bib & Booties Set", "Bubble Romper", "Soft Cardigan", "Terry Robe", "Snap Bodysuit", "Knit Overall"],
-    Shoes: ["Canvas Sneaker", "Mary Jane Flat", "Rain Boot", "Suede Moccasin", "Velcro Trainer", "Ballet Slipper", "Hi-Top Sneaker", "Sandal", "Winter Boot", "Slip-On Shoe"],
-    Accessories: ["Wool Beanie", "Printed Backpack", "Bow Hair Clip Set", "Knit Scarf", "Canvas Belt", "Sun Hat", "Crossbody Bag", "Patterned Socks (3-Pack)", "Mittens", "Headband"],
-  };
-
-  const ADJECTIVES = ["Sunlit", "Meadow", "Petit", "Breezy", "Golden Hour", "Little Bloom", "Orchard", "Dandelion", "Whisper", "Cloudy Day", "Marigold Fields", "Soft Petal", "Wander", "Honeycomb", "Sprout", "Amber Trail"];
-
-  const PRODUCTS = [];
-  let idCounter = 1;
-
-  // How many distinct real photos you'll provide per category.
-  // Products cycle through these 6 images within their category —
-  // you don't need one unique photo per product (360 photos), just 6 per category (30 total).
-  const IMAGES_PER_CATEGORY = 6;
-  const CATEGORY_SLUG = {
-    Girls: "girls",
-    Boys: "boys",
-    Baby: "baby",
-    Shoes: "shoes",
-    Accessories: "accessories",
-  };
-  const categoryImageCounter = {}; // tracks cycling index per category
-
-  // Build ~360 products: enough for 30 pages @ 12/page
-  const TARGET_COUNT = 360;
-
-  while (PRODUCTS.length < TARGET_COUNT) {
-    const category = pick(CATEGORIES);
-    const type = pick(TYPES_BY_CATEGORY[category]);
-    const adjective = pick(ADJECTIVES);
-    const ageGroup = pick(AGE_GROUPS);
-    const color = pick(COLORS);
-    const price = (pickInt(8, 68) - 0.01).toFixed(2);
-    const onSale = rand() < 0.22;
-    const salePrice = onSale ? (price * (rand() < 0.5 ? 0.7 : 0.8)).toFixed(2) : null;
-    const isNew = rand() < 0.3;
-    const rating = (pickInt(34, 50) / 10).toFixed(1);
-    const reviews = pickInt(2, 240);
-
-    // sizes: shoes/accessories use a narrower set label but reuse SIZES array positions
-    const availableSizes = category === "Shoes"
-      ? SIZES.slice(0, pickInt(3, 5))
-      : SIZES.slice(0, pickInt(2, 5));
-
-    // cycle 1..6 within this category so every product maps to one of your 6 real photos
-    categoryImageCounter[category] = (categoryImageCounter[category] || 0) + 1;
-    const imageIndex = ((categoryImageCounter[category] - 1) % IMAGES_PER_CATEGORY) + 1;
-    const slug = CATEGORY_SLUG[category];
-
-    PRODUCTS.push({
-      id: idCounter++,
-      name: `${adjective} ${type}`,
-      category,
-      ageGroup: ageGroup.id,
-      ageGroupLabel: ageGroup.label,
-      color: color.name,
-      colorHex: color.hex,
-      price: Number(price),
-      salePrice: salePrice ? Number(salePrice) : null,
-      isNew,
-      rating: Number(rating),
-      reviews,
-      sizes: availableSizes,
-      sku: `MC-${String(idCounter).padStart(5, "0")}`,
-      // real photo you upload — e.g. images/girls-1.jpg
-      imageSrc: `images/${slug}-${imageIndex}.jpg`,
+    const ageMap = new Map();
+    products.forEach((p) => {
+      if (p.ageGroup) ageMap.set(p.ageGroup, p.ageGroupLabel || p.ageGroup);
     });
+    const ageGroups = [...ageMap.entries()]
+      .map(([id, label]) => ({ id, label }))
+      .sort((a, b) => a.id.localeCompare(b.id));
+
+    const sizes = [...new Set(products.flatMap((p) => p.sizes))];
+
+    const colorMap = new Map();
+    products.forEach((p) => {
+      if (p.color) colorMap.set(p.color, p.colorHex);
+    });
+    const colors = [...colorMap.entries()].map(([name, hex]) => ({ name, hex }));
+
+    return { categories, ageGroups, sizes, colors };
   }
 
-  // Primary image: your real local photo (images/<category>-<1-6>.jpg)
   function productImage(p) {
-    return p.imageSrc;
+    return p.imageSrc || productImageFallback(p);
   }
-
-  // Fallback (used only via onerror, if the real photo hasn't been uploaded yet)
   function productImageFallback(p, w = 400, h = 500) {
-    return `https://placehold.co/${w}x${h}/${p.colorHex}/2b2a28?font=poppins&text=${encodeURIComponent(p.category)}`;
+    const hex = (p && p.colorHex) || "d9a441";
+    const label = (p && p.category) || "Product";
+    return `https://placehold.co/${w}x${h}/${hex}/2b2a28?font=poppins&text=${encodeURIComponent(label)}`;
   }
 
-  window.MARIGOLD_PRODUCTS = PRODUCTS;
-  window.MARIGOLD_CATEGORIES = CATEGORIES;
-  window.MARIGOLD_AGE_GROUPS = AGE_GROUPS;
-  window.MARIGOLD_SIZES = SIZES;
-  window.MARIGOLD_COLORS = COLORS;
   window.marigoldProductImage = productImage;
   window.marigoldProductImageFallback = productImageFallback;
+
+  // ---- MARIGOLD_READY: every page's render script does
+  //      `await window.MARIGOLD_READY;` before touching MARIGOLD_PRODUCTS ----
+  window.MARIGOLD_READY = (async function loadProducts() {
+    let usingFallback = false;
+    try {
+      if (!SHEET_API_URL || SHEET_API_URL.indexOf("PASTE_YOUR") === 0) {
+        throw new Error("Google Sheet not connected yet (SHEET_API_URL not set)");
+      }
+      const res = await fetch(SHEET_API_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("Sheet fetch failed: HTTP " + res.status);
+      const raw = await res.json();
+      if (raw && raw.error) throw new Error(raw.error);
+      const products = (Array.isArray(raw) ? raw : []).map(normalizeProduct).filter((p) => p.id);
+      if (!products.length) throw new Error("Sheet returned zero products");
+      window.MARIGOLD_PRODUCTS = products;
+    } catch (err) {
+      console.warn("Marigold: showing sample data —", err.message);
+      window.MARIGOLD_PRODUCTS = FALLBACK_PRODUCTS.map(normalizeProduct);
+      usingFallback = true;
+    }
+
+    window.MARIGOLD_SOURCE = usingFallback ? "fallback" : "sheet";
+
+    const f = deriveFilters(window.MARIGOLD_PRODUCTS);
+    window.MARIGOLD_CATEGORIES = f.categories;
+    window.MARIGOLD_AGE_GROUPS = f.ageGroups;
+    window.MARIGOLD_SIZES = f.sizes;
+    window.MARIGOLD_COLORS = f.colors;
+
+    // small, unobtrusive heads-up banner while you're setting the sheet up —
+    // safe to ignore/remove once SHEET_API_URL is connected
+    if (usingFallback) {
+      document.addEventListener("DOMContentLoaded", () => {
+        const bar = document.createElement("div");
+        bar.textContent =
+          "Showing sample data — connect your Google Sheet in js/products-data.js (SHEET_API_URL) to go live.";
+        bar.style.cssText =
+          "background:#F2D98A;color:#2B2A28;font-size:12.5px;font-weight:600;text-align:center;padding:8px 12px;";
+        document.body.prepend(bar);
+      });
+    }
+
+    return window.MARIGOLD_PRODUCTS;
+  })();
 })();
 
 </script>
-  <script>
-    (function () {
-      // demo cart: 3 fixed sample items from the shared catalog
-      const ALL = window.MARIGOLD_PRODUCTS;
-      const cart = [
-        { product: ALL[4], qty: 1 },
-        { product: ALL[42], qty: 2 },
-        { product: ALL[103], qty: 1 },
-      ];
-
-      const itemsEl = document.getElementById("summary-items");
-      const totalsEl = document.getElementById("summary-totals");
-
-      itemsEl.innerHTML = cart.map(({ product: p, qty }) => {
-        const unit = p.salePrice ?? p.price;
-        return `
-          <div class="summary-line-item">
-            <img src="${window.marigoldProductImage(p)}" alt="${p.name}"
-                 onerror="this.onerror=null;this.src='${window.marigoldProductImageFallback(p)}';">
-            <div class="info">
-              <div class="name">${p.name}</div>
-              <div class="meta">${p.ageGroupLabel} · Qty ${qty}</div>
-            </div>
-            <div class="price">$${(unit * qty).toFixed(2)}</div>
-          </div>`;
-      }).join("");
-
-      const subtotal = cart.reduce((sum, { product: p, qty }) => sum + (p.salePrice ?? p.price) * qty, 0);
-      const shipping = 0;
-      const tax = subtotal * 0.075;
-      const total = subtotal + shipping + tax;
-
-      totalsEl.innerHTML = `
-        <div class="row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-        <div class="row"><span>Shipping</span><span>${shipping === 0 ? "Free" : "$" + shipping.toFixed(2)}</span></div>
-        <div class="row"><span>Estimated tax</span><span>$${tax.toFixed(2)}</span></div>
-        <div class="row grand"><span>Total</span><span>$${total.toFixed(2)}</span></div>
-      `;
-    })();
-  </script>
   <script>
 /* ==========================================================================
    Marigold & Co. — shared behaviors, cart + wishlist (localStorage-backed)
@@ -1659,5 +1664,46 @@ section.band { padding: 76px 0; }
 })();
 
 </script>
+  <script>
+    (async function () {
+      await window.MARIGOLD_READY;
+
+      const itemsEl = document.getElementById("summary-items");
+      const totalsEl = document.getElementById("summary-totals");
+      const cart = window.Marigold.cartItemsWithProducts();
+
+      if (!cart.length) {
+        itemsEl.innerHTML = `<p style="color:var(--ink-soft); font-size:13.5px; padding:10px 0;">Your cart is empty. <a href="shop.html" style="color:var(--marigold-dk); font-weight:600;">Browse the shop →</a></p>`;
+        totalsEl.innerHTML = "";
+        return;
+      }
+
+      itemsEl.innerHTML = cart.map(({ product: p, qty }) => {
+        const unit = p.salePrice ?? p.price;
+        return `
+          <div class="summary-line-item">
+            <img src="${window.marigoldProductImage(p)}" alt="${p.name}"
+                 onerror="this.onerror=null;this.src='${window.marigoldProductImageFallback(p)}';">
+            <div class="info">
+              <div class="name">${p.name}</div>
+              <div class="meta">${p.ageGroupLabel} · Qty ${qty}</div>
+            </div>
+            <div class="price">$${(unit * qty).toFixed(2)}</div>
+          </div>`;
+      }).join("");
+
+      const subtotal = cart.reduce((sum, { product: p, qty }) => sum + (p.salePrice ?? p.price) * qty, 0);
+      const shipping = 0;
+      const tax = subtotal * 0.075;
+      const total = subtotal + shipping + tax;
+
+      totalsEl.innerHTML = `
+        <div class="row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+        <div class="row"><span>Shipping</span><span>${shipping === 0 ? "Free" : "$" + shipping.toFixed(2)}</span></div>
+        <div class="row"><span>Estimated tax</span><span>$${tax.toFixed(2)}</span></div>
+        <div class="row grand"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+      `;
+    })();
+  </script>
 </body>
 </html>
