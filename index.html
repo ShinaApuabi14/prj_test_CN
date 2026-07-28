@@ -571,7 +571,9 @@ section.band { padding: 76px 0; }
 .payments { display: flex; gap: 10px; font-family: var(--font-mono); font-size: 11px; }
 .payments span {
   border: 1px solid var(--line); border-radius: 4px; padding: 3px 8px; background: var(--white);
+  display: flex; align-items: center; justify-content: center;
 }
+.payments img { height: 16px; width: auto; display: block; }
 
 /* ============================================================
    SHOP / CATALOG PAGE
@@ -1209,7 +1211,7 @@ section.band { padding: 76px 0; }
         <a href="shop.html" class="btn btn-solid">Shop Now</a>
       </div>
       <div class="hero-visual">
-        <img src="images/hero.jpg" alt="Autumn 2026 kids' lookbook cover art"
+        <img id="hero-image" src="images/hero.jpg" alt="Autumn 2026 kids' lookbook cover art"
              onerror="this.onerror=null;this.src='https://placehold.co/900x1100/f2d98a/2b2a28?font=poppins&text=Autumn+Lookbook';">
         <div class="hero-dots">
           <span class="active"></span><span></span><span></span><span></span>
@@ -1248,7 +1250,7 @@ section.band { padding: 76px 0; }
             <h3>Canvas<br><span class="accent">Hi-Tops</span></h3>
             <a href="shop.html?category=Shoes" class="shop-link">Shop Now →</a>
           </div>
-          <img class="bg" src="images/promo-shoes.jpg" alt="Canvas hi-top sneaker for kids" style="opacity:.9;"
+          <img id="promo-shoes-image" class="bg" src="images/promo-shoes.jpg" alt="Canvas hi-top sneaker for kids" style="opacity:.9;"
                onerror="this.onerror=null;this.src='https://placehold.co/700x900/5b7b8a/f6efe2?font=poppins&text=Hi-Top+Sneaker';">
           <div class="scrim"></div>
           <div class="promo-watermark">FAVORITE</div>
@@ -1260,7 +1262,7 @@ section.band { padding: 76px 0; }
               <h3 class="accent">Harvest<br>Sweaters</h3>
               <a href="shop.html?category=Boys" class="shop-link">Shop Now →</a>
             </div>
-            <img class="bg" src="images/promo-sweaters.jpg" alt="Cozy harvest-colored sweater for kids"
+            <img id="promo-sweaters-image" class="bg" src="images/promo-sweaters.jpg" alt="Cozy harvest-colored sweater for kids"
                  onerror="this.onerror=null;this.src='https://placehold.co/700x520/e8836b/2b2a28?font=poppins&text=Cozy+Sweater';">
             <div class="scrim"></div>
           </div>
@@ -1270,7 +1272,7 @@ section.band { padding: 76px 0; }
               <h3>Meadow<br><span class="accent">Crossbody</span></h3>
               <a href="shop.html?category=Accessories" class="shop-link">Shop Now →</a>
             </div>
-            <img class="bg" src="images/promo-accessories.jpg" alt="Sage green crossbody bag for kids"
+            <img id="promo-accessories-image" class="bg" src="images/promo-accessories.jpg" alt="Sage green crossbody bag for kids"
                  onerror="this.onerror=null;this.src='https://placehold.co/700x520/93a67f/2b2a28?font=poppins&text=Crossbody+Bag';">
             <div class="scrim"></div>
           </div>
@@ -1350,7 +1352,7 @@ section.band { padding: 76px 0; }
   "use strict";
 
   // ---- CONFIGURE THIS ----
-  const SHEET_API_URL = "https://script.google.com/a/macros/credpal.com/s/AKfycbyiGGcSLunNi4kewUyvTAKl8698ZpLCVhNv2fxrCQiu8d9GlGp3DeR0Su8VyffMKJC8Lg/exec";
+  const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyiGGcSLunNi4kewUyvTAKl8698ZpLCVhNv2fxrCQiu8d9GlGp3DeR0Su8VyffMKJC8Lg/exec";
   // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
 
   // ---- small built-in sample so the site still renders something
@@ -1487,6 +1489,80 @@ section.band { padding: 76px 0; }
 
 </script>
   <script>
+/* ============================================================
+   Marigold & Co. — landing content loader (Google Sheet-backed)
+   ------------------------------------------------------------
+   Fetches the "Landing" tab (simple key | value rows) from the
+   same Apps Script Web App as products-data.js, using ?type=landing.
+   Controls: hero image, the 3 homepage promo images, and the
+   4 footer payment icons — on every page, since the footer with
+   payment icons appears everywhere.
+
+   >>> PASTE YOUR DEPLOYED WEB APP URL BELOW (same URL as in
+       products-data.js) <<<
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  // ---- CONFIGURE THIS (same URL you used in products-data.js) ----
+  const SHEET_API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+  // ---- sample content shown until a sheet is connected, or for any
+  //      key you leave blank in the sheet ----
+  const FALLBACK_LANDING = {
+    "hero.image": "images/hero.jpg",
+    "hero.alt": "Autumn 2026 kids' lookbook cover art",
+    "promo_shoes.image": "images/promo-shoes.jpg",
+    "promo_shoes.alt": "Canvas hi-top sneaker for kids",
+    "promo_sweaters.image": "images/promo-sweaters.jpg",
+    "promo_sweaters.alt": "Cozy harvest-colored sweater for kids",
+    "promo_accessories.image": "images/promo-accessories.jpg",
+    "promo_accessories.alt": "Sage green crossbody bag for kids",
+    "payment.1.label": "VISA",
+    "payment.1.image": "",
+    "payment.2.label": "MasterCard",
+    "payment.2.image": "",
+    "payment.3.label": "PayPal",
+    "payment.3.image": "",
+    "payment.4.label": "Amex",
+    "payment.4.image": "",
+  };
+
+  window.MARIGOLD_LANDING_READY = (async function loadLanding() {
+    let usingFallback = false;
+    try {
+      if (!SHEET_API_URL || SHEET_API_URL.indexOf("PASTE_YOUR") === 0) {
+        throw new Error("Google Sheet not connected yet (SHEET_API_URL not set)");
+      }
+      const url = SHEET_API_URL + (SHEET_API_URL.indexOf("?") === -1 ? "?" : "&") + "type=landing";
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("Landing fetch failed: HTTP " + res.status);
+      const raw = await res.json();
+      if (raw && raw.error) throw new Error(raw.error);
+      if (!raw || typeof raw !== "object" || Array.isArray(raw) || !Object.keys(raw).length) {
+        throw new Error("Landing tab returned no rows");
+      }
+      window.MARIGOLD_LANDING = raw;
+    } catch (err) {
+      console.warn("Marigold: landing images using sample data —", err.message);
+      window.MARIGOLD_LANDING = FALLBACK_LANDING;
+      usingFallback = true;
+    }
+    window.MARIGOLD_LANDING_SOURCE = usingFallback ? "fallback" : "sheet";
+    return window.MARIGOLD_LANDING;
+  })();
+
+  // Look up a key from the Landing sheet, with a fallback if blank/missing.
+  window.marigoldLanding = function (key, fallback) {
+    const data = window.MARIGOLD_LANDING || {};
+    const v = data[key];
+    return v !== undefined && v !== null && String(v).trim() !== "" ? v : fallback;
+  };
+})();
+
+</script>
+  <script>
 /* ==========================================================================
    Marigold & Co. — shared behaviors, cart + wishlist (localStorage-backed)
    NOTE: this is a static site meant to be hosted on GitHub Pages, not run
@@ -1602,6 +1678,65 @@ section.band { padding: 76px 0; }
     getWishlist, isWishlisted, toggleWishlist, wishlistItemsWithProducts,
     updateCartBadge, refreshWishlistIcons,
   };
+
+  // ---------------- landing images: hero, promo panels, payment icons ----------------
+  // Runs on every page (payment icons live in the shared footer); hero/promo
+  // elements only exist on index.html, so each lookup is guarded with a null check.
+  function applyLandingImages() {
+    const heroImg = document.getElementById("hero-image");
+    if (heroImg) {
+      heroImg.src = window.marigoldLanding("hero.image", heroImg.getAttribute("src"));
+      heroImg.alt = window.marigoldLanding("hero.alt", heroImg.getAttribute("alt"));
+    }
+
+    ["shoes", "sweaters", "accessories"].forEach((key) => {
+      const img = document.getElementById(`promo-${key}-image`);
+      if (!img) return;
+      img.src = window.marigoldLanding(`promo_${key}.image`, img.getAttribute("src"));
+      img.alt = window.marigoldLanding(`promo_${key}.alt`, img.getAttribute("alt"));
+    });
+
+    const paymentsEl = document.querySelector(".payments");
+    if (paymentsEl) {
+      const items = [1, 2, 3, 4]
+        .map((n) => ({
+          label: window.marigoldLanding(`payment.${n}.label`, ""),
+          image: window.marigoldLanding(`payment.${n}.image`, ""),
+        }))
+        .filter((p) => p.label);
+
+      if (items.length) {
+        paymentsEl.innerHTML = "";
+        items.forEach((p) => {
+          const wrapper = document.createElement("span");
+          if (p.image) {
+            const img = document.createElement("img");
+            img.src = p.image;
+            img.alt = p.label;
+            img.onerror = () => {
+              wrapper.textContent = p.label; // fall back to text if the logo URL is broken
+            };
+            wrapper.appendChild(img);
+          } else {
+            wrapper.textContent = p.label;
+          }
+          paymentsEl.appendChild(wrapper);
+        });
+      }
+    }
+  }
+
+  function whenDomReady(fn) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", fn);
+    } else {
+      fn();
+    }
+  }
+
+  if (window.MARIGOLD_LANDING_READY) {
+    window.MARIGOLD_LANDING_READY.then(() => whenDomReady(applyLandingImages));
+  }
 
   document.addEventListener("DOMContentLoaded", () => {
     // Mobile nav toggle
