@@ -1432,7 +1432,7 @@ section.band { padding: 76px 0; }
   function productImageFallback(p, w = 400, h = 500) {
     const hex = (p && p.colorHex) || "d9a441";
     const label = (p && p.category) || "Product";
-    return `https://placehold.co/₦{w}x₦{h}/₦{hex}/2b2a28?font=poppins&text=₦{encodeURIComponent(label)}`;
+    return `https://placehold.co/${w}x${h}/${hex}/2b2a28?font=poppins&text=${encodeURIComponent(label)}`;
   }
 
   window.marigoldProductImage = productImage;
@@ -1717,27 +1717,27 @@ section.band { padding: 76px 0; }
 
   els.categoryFilters.innerHTML = CATEGORIES.map((cat) => `
     <label class="filter-option">
-      <input type="checkbox" value="₦{cat}" data-filter="category" ₦{state.categories.has(cat) ? "checked" : ""}>
-      ₦{cat}
-      <span class="count">₦{categoryCount(cat)}</span>
+      <input type="checkbox" value="${cat}" data-filter="category" ${state.categories.has(cat) ? "checked" : ""}>
+      ${cat}
+      <span class="count">${categoryCount(cat)}</span>
     </label>`).join("");
 
   els.ageFilters.innerHTML = AGE_GROUPS.map((ag) => `
-    <label class="age-pill ₦{state.ages.has(ag.id) ? "checked" : ""}">
-      <input type="checkbox" value="₦{ag.id}" data-filter="age">
-      ₦{ag.label}
+    <label class="age-pill ${state.ages.has(ag.id) ? "checked" : ""}">
+      <input type="checkbox" value="${ag.id}" data-filter="age">
+      ${ag.label}
     </label>`).join("");
 
   els.sizeFilters.innerHTML = SIZES.map((sz) => `
     <label class="filter-option" style="display:inline-flex; margin-right:14px;">
-      <input type="checkbox" value="₦{sz}" data-filter="size">
-      ₦{sz}
+      <input type="checkbox" value="${sz}" data-filter="size">
+      ${sz}
     </label>`).join("");
 
   els.colorFilters.innerHTML = COLORS.map((c) => `
-    <label class="color-swatch-wrap" title="₦{c.name}">
-      <input type="checkbox" value="₦{c.name}" data-filter="color">
-      <span class="color-swatch" style="background:#₦{c.hex};"></span>
+    <label class="color-swatch-wrap" title="${c.name}">
+      <input type="checkbox" value="${c.name}" data-filter="color">
+      <span class="color-swatch" style="background:#${c.hex};"></span>
     </label>`).join("");
 
   // ---------------- event wiring ----------------
@@ -1806,26 +1806,26 @@ section.band { padding: 76px 0; }
   // ---------------- rendering ----------------
   function cardHTML(p) {
     const price = p.salePrice
-      ? `<span class="was">₦₦{p.price.toFixed(2)}</span>₦₦{p.salePrice.toFixed(2)}`
-      : `₦₦{p.price.toFixed(2)}`;
+      ? `<span class="was">$${p.price.toFixed(2)}</span>$${p.salePrice.toFixed(2)}`
+      : `$${p.price.toFixed(2)}`;
     const tag = p.salePrice
       ? `<span class="product-tag sale">Sale</span>`
       : p.isNew ? `<span class="product-tag new">New</span>` : "";
     return `
       <article class="product-card">
         <a href="#" class="product-media">
-          ₦{tag}
-          <img src="₦{window.marigoldProductImage(p)}" alt="₦{p.name}" loading="lazy"
-               onerror="this.onerror=null;this.src='₦{window.marigoldProductImageFallback(p)}';">
+          ${tag}
+          <img src="${window.marigoldProductImage(p)}" alt="${p.name}" loading="lazy"
+               onerror="this.onerror=null;this.src='${window.marigoldProductImageFallback(p)}';">
         </a>
-        <button class="wishlist-btn" data-wishlist-toggle="₦{p.id}" aria-label="Save to wishlist">
+        <button class="wishlist-btn" data-wishlist-toggle="${p.id}" aria-label="Save to wishlist">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.5 4c2-.3 3.7.7 4.5 2.2C10.8 4.7 12.5 3.7 14.5 4c3.5.5 5.1 4 3.5 7.7C15.5 16.4 12 21 12 21z"/></svg>
         </button>
         <div class="product-body">
-          <p class="product-cat">₦{p.category} · ₦{p.ageGroupLabel}</p>
-          <h3 class="product-name">₦{p.name}</h3>
-          <p class="product-price">₦{price}</p>
-          <button class="btn btn-sm btn-block" style="margin-top:10px;" data-add-to-cart="₦{p.id}">Add to cart</button>
+          <p class="product-cat">${p.category} · ${p.ageGroupLabel}</p>
+          <h3 class="product-name">${p.name}</h3>
+          <p class="product-price">${price}</p>
+          <button class="btn btn-sm btn-block" style="margin-top:10px;" data-add-to-cart="${p.id}">Add to cart</button>
         </div>
       </article>`;
   }
@@ -1834,14 +1834,14 @@ section.band { padding: 76px 0; }
     const chips = [];
     state.categories.forEach((v) => chips.push({ label: v, group: "categories", value: v }));
     state.ages.forEach((v) => chips.push({ label: AGE_GROUPS.find((a) => a.id === v).label, group: "ages", value: v }));
-    state.sizes.forEach((v) => chips.push({ label: `Size ₦{v}`, group: "sizes", value: v }));
+    state.sizes.forEach((v) => chips.push({ label: `Size ${v}`, group: "sizes", value: v }));
     state.colors.forEach((v) => chips.push({ label: v, group: "colors", value: v }));
     if (state.priceMin !== null || state.priceMax !== null) {
-      chips.push({ label: `₦₦{state.priceMin ?? 0} – ₦₦{state.priceMax ?? "∞"}`, group: "price", value: "price" });
+      chips.push({ label: `$${state.priceMin ?? 0} – $${state.priceMax ?? "∞"}`, group: "price", value: "price" });
     }
     els.activeChips.innerHTML = chips.map((c) => `
-      <span class="chip" data-group="₦{c.group}" data-value="₦{c.value}">
-        ₦{c.label} <button aria-label="Remove filter">✕</button>
+      <span class="chip" data-group="${c.group}" data-value="${c.value}">
+        ${c.label} <button aria-label="Remove filter">✕</button>
       </span>`).join("");
 
     els.activeChips.querySelectorAll(".chip button").forEach((btn) => {
@@ -1888,16 +1888,16 @@ section.band { padding: 76px 0; }
       pages.push(1); pages.push("…"); pushRange(p - 1, p + 1); pages.push("…"); pages.push(totalPages);
     }
 
-    let html = `<button class="page-btn" data-page="₦{p - 1}" ₦{p === 1 ? "disabled" : ""} aria-label="Previous page">‹</button>`;
+    let html = `<button class="page-btn" data-page="${p - 1}" ${p === 1 ? "disabled" : ""} aria-label="Previous page">‹</button>`;
     pages.forEach((pg) => {
       if (pg === "…") html += `<span class="page-ellipsis">…</span>`;
-      else html += `<button class="page-btn ₦{pg === p ? "current" : ""}" data-page="₦{pg}">₦{pg}</button>`;
+      else html += `<button class="page-btn ${pg === p ? "current" : ""}" data-page="${pg}">${pg}</button>`;
     });
-    html += `<button class="page-btn" data-page="₦{p + 1}" ₦{p === totalPages ? "disabled" : ""} aria-label="Next page">›</button>`;
+    html += `<button class="page-btn" data-page="${p + 1}" ${p === totalPages ? "disabled" : ""} aria-label="Next page">›</button>`;
     html += `
       <label class="page-jump">
-        of ₦{totalPages} —
-        <input type="number" min="1" max="₦{totalPages}" value="₦{p}" id="page-jump-input" aria-label="Jump to page">
+        of ${totalPages} —
+        <input type="number" min="1" max="${totalPages}" value="${p}" id="page-jump-input" aria-label="Jump to page">
         <button class="btn btn-sm" id="page-jump-go">Go</button>
       </label>`;
     els.pagination.innerHTML = html;
@@ -1930,7 +1930,7 @@ section.band { padding: 76px 0; }
     const start = (state.page - 1) * state.perPage;
     const pageItems = sorted.slice(start, start + state.perPage);
 
-    els.resultCount.innerHTML = `<strong>₦{sorted.length}</strong> products found &nbsp;·&nbsp; Page <strong>₦{state.page}</strong> of <strong>₦{totalPages}</strong>`;
+    els.resultCount.innerHTML = `<strong>${sorted.length}</strong> products found &nbsp;·&nbsp; Page <strong>${state.page}</strong> of <strong>${totalPages}</strong>`;
     els.catalogGrid.innerHTML = pageItems.map(cardHTML).join("");
     els.emptyState.style.display = sorted.length === 0 ? "block" : "none";
     els.catalogGrid.style.display = sorted.length === 0 ? "none" : "grid";
