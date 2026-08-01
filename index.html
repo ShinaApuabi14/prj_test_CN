@@ -573,10 +573,16 @@ section.band { padding: 76px 0; }
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 28px; /* Controls icon size */
-  color: #333;      /* Base color */
+  font-size: 28px; /* Controls font icon size */
+  color: #333;
 }
 
+.payments img {
+  height: 24px;   /* Match visual height of font icons */
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
 /* ============================================================
    SHOP / CATALOG PAGE
    ============================================================ */
@@ -1332,7 +1338,7 @@ section.band { padding: 76px 0; }
     <div class="wrap footer-bottom">
       <span>© 2026 Marigold &amp; Co. All Rights Reserved.</span>
      <div class="payments">
-     <i class="fa-brands fa-cc-visa"></i>
+     <img src="images/visa.jpg" alt="Visa">
      <i class="fa-brands fa-cc-mastercard"></i>
      <i class="fa-brands fa-cc-amex"></i>
      <i class="fa-brands fa-cc-paypal"></i>
