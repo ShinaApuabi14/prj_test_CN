@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Marigold & Co. — Kids' Clothing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 /* ==========================================================================
    MARIGOLD & CO. — Kids' clothing shop
@@ -571,14 +572,9 @@ section.band { padding: 76px 0; }
 .payments {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.payments img {
-  height: 22px;
-  width: auto;
-  display: block;
-  object-fit: contain;
+  gap: 12px;
+  font-size: 28px; /* Controls icon size */
+  color: #333;      /* Base color */
 }
 
 /* ============================================================
@@ -1335,12 +1331,12 @@ section.band { padding: 76px 0; }
     </div>
     <div class="wrap footer-bottom">
       <span>© 2026 Marigold &amp; Co. All Rights Reserved.</span>
-      <div class="payments">
-     <img src="https://raw.githubusercontent.com/aaronfagan/svg-credit-card-payment-icons/main/flat/visa.svg" alt="Visa" height="20">
-     <img src="https://raw.githubusercontent.com/aaronfagan/svg-credit-card-payment-icons/main/flat/mastercard.svg" alt="Mastercard" height="20">
-     <img src="https://raw.githubusercontent.com/aaronfagan/svg-credit-card-payment-icons/main/flat/amex.svg" alt="American Express" height="20">
-     <img src="https://raw.githubusercontent.com/aaronfagan/svg-credit-card-payment-icons/main/flat/paypal.svg" alt="PayPal" height="20">
-     <img src="https://raw.githubusercontent.com/aaronfagan/svg-credit-card-payment-icons/main/flat/applepay.svg" alt="Apple Pay" height="20">
+     <div class="payments">
+     <i class="fa-brands fa-cc-visa"></i>
+     <i class="fa-brands fa-cc-mastercard"></i>
+     <i class="fa-brands fa-cc-amex"></i>
+     <i class="fa-brands fa-cc-paypal"></i>
+     <i class="fa-brands fa-apple-pay"></i>
    </div>
     </div>
   </footer>
